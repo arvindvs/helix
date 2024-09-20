@@ -1,0 +1,19 @@
+{
+  "audio": {
+    "input_device": "default",
+    "output_device": "default"
+  },
+  "wake_word": {
+    "model_path": "/path/to/wake_word_model"
+  },
+  "nlu": {
+    "model_path": "/path/to/nlu_model"
+  },
+  "tts": {
+    "voice": "default"
+  },
+  "api_keys": {
+    "weather_api": "your_weather_api_key",
+    "news_api": "your_news_api_key"
+  }
+}
