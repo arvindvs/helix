@@ -1,2 +1,2 @@
 # 🧬 helix
-A portable, LLM-powered virtual assistant for everyday tasks
+An open-source, AI-powered virtual home assistant for everyday tasks
