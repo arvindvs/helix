@@ -1,5 +1,11 @@
 github.com/AssemblyAI/assemblyai-go-sdk v1.8.0 h1:JLjhq7kVfi74K44xmXODMdxcpmdYDvUyThKcH4u0l7I=
 github.com/AssemblyAI/assemblyai-go-sdk v1.8.0/go.mod h1:ytTvsjAVL+nXZnzBfDagQ/LxDQaKL9W/eTiCo3ZuPJA=
+github.com/Picovoice/porcupine v1.9.0 h1:sFDCOcv0DPbzb/9klpiCU3daCNBs95v2G1lk2jNv42Y=
+github.com/Picovoice/porcupine v1.9.0/go.mod h1:mUDM4SL5lt4okDsoXB/pxztNu7EaISO8AHefpmVHsi4=
+github.com/Picovoice/porcupine/binding/go/v2 v2.2.1 h1:sAXWRAt5If2Evfrs2BT+N1HSVMD2X8NF/3hyiMyrOKw=
+github.com/Picovoice/porcupine/binding/go/v2 v2.2.1/go.mod h1:09YbXv1wD+hAav5oygCk/Q3teUeu0vho4BXERzpeGWM=
+github.com/Picovoice/porcupine/binding/go/v3 v3.0.3 h1:MDmmEr2VJNIbSWrUg+cCmJ5NKTkYpzhTUHB2VmIEpVw=
+github.com/Picovoice/porcupine/binding/go/v3 v3.0.3/go.mod h1:6Pg/746wMh0GDNEWqi56GuTsTk7WLeVgTB0ZhyERs8U=
 github.com/alphacep/vosk-api/go v0.3.50 h1:2vSN41RCU1WdHEqBrhKtTggfKL6Yu5Dmj+urVszwiuw=
 github.com/alphacep/vosk-api/go v0.3.50/go.mod h1:9X8IJsHnFk/b1xyvjlZifo+ZL5VTAx3LW+JQce/eRcA=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=

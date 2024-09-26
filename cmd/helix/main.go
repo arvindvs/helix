@@ -11,6 +11,7 @@ import (
 
 	"github.com/arvindvs/helix/internal/audio"
 	"github.com/arvindvs/helix/internal/stt"
+	"github.com/arvindvs/helix/internal/wakeword"
 
 	"github.com/gordonklaus/portaudio"
 	"github.com/joho/godotenv"
@@ -34,6 +35,12 @@ func main() {
 	}
 	defer portaudio.Terminate()
 
+	wakeWordDetector, err := wakeword.NewDetector("path/to/porcupine_model.pv", "path/to/helix_keyword.ppn", 0.5)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer wakeWordDetector.Close()
+
 	sttProvider, err := stt.NewProvider()
 	if err != nil {
 		log.Fatal(err)
@@ -42,12 +49,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err = sttProvider.StartListening(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	rec, err := audio.NewRecorder(16000, 8000)
+	rec, err := audio.NewRecorder(16000, 8192)
 	if err != nil {
 		panic(err)
 	}
@@ -56,8 +59,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Recording... Press Ctrl+C to stop.")
+	fmt.Println("Listening for wake word 'Helix'... Press Ctrl+C to stop.")
 	
+	isListening := false
+
 	for {
 		select {
 		case <-sigs:
@@ -74,9 +79,38 @@ func main() {
 			b, err := rec.Read()
 			checkErr(err)
 
-			// Send partial audio samples.
-			err = sttProvider.SendAudio(ctx, b)
-			checkErr(err)
+			if !isListening {
+				for i := 0; i < len(b); i += 1024 {
+					end := i + 1024
+					if end > len(b) {
+						end = len(b)
+					}
+					chunk := b[i:end]
+					detected, err := wakeWordDetector.Process(chunk)
+					checkErr(err)
+
+					if detected {
+						fmt.Println("\nWake word detected! Starting to listen...")
+						err = sttProvider.StartListening(ctx)
+						checkErr(err)
+						isListening = true
+						break
+					}
+				}
+			} else {
+				// Send partial audio samples to STT provider
+				err = sttProvider.SendAudio(ctx, b)
+				checkErr(err)
+
+				if !sttProvider.IsSpeechDetected() {
+					fmt.Println("No speech detected for 10 seconds. Now listening for wake word...")
+					err = sttProvider.StopListening(ctx)
+					checkErr(err)
+					isListening = false
+					rec.Stop()
+					rec.Start()
+				}
+			}
 		}
 	}
 }
