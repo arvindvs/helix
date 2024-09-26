@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/arvindvs/helix/internal/audio"
+	"github.com/arvindvs/helix/internal/core"
 	"github.com/arvindvs/helix/internal/stt"
 	"github.com/arvindvs/helix/internal/wakeword"
 
@@ -41,7 +42,14 @@ func main() {
 	}
 	defer wakeWordDetector.Close()
 
-	sttProvider, err := stt.NewProvider()
+	assistant, err := core.NewAssistant()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sttProvider, err := stt.NewAssemblyAISTT(func(text string) {
+		assistant.ProcessText(context.Background(), text)
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,8 +74,6 @@ func main() {
 	for {
 		select {
 		case <-sigs:
-			slog.Info("stopping recording...")
-
 			err = rec.Stop()
 			checkErr(err)
 
@@ -90,7 +96,8 @@ func main() {
 					checkErr(err)
 
 					if detected {
-						fmt.Println("\nWake word detected! Starting to listen...")
+						slog.Info("Wake word detected. Listening...")
+						fmt.Println("Your input:")
 						err = sttProvider.StartListening(ctx)
 						checkErr(err)
 						isListening = true
@@ -103,7 +110,7 @@ func main() {
 				checkErr(err)
 
 				if !sttProvider.IsSpeechDetected() {
-					fmt.Println("No speech detected for 10 seconds. Now listening for wake word...")
+					slog.Info("No speech detected for 10 seconds. Now listening for wake word...")
 					err = sttProvider.StopListening(ctx)
 					checkErr(err)
 					isListening = false
@@ -117,7 +124,7 @@ func main() {
 
 func checkErr(err error) {
 	if err != nil {
-		slog.Error("Something bad happened", "err", err)
+		slog.Error("System failure", "err", err)
 		os.Exit(1)
 	}
 }

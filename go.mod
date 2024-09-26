@@ -10,5 +10,6 @@ require (
 	github.com/gordonklaus/portaudio v0.0.0-20230709114228-aafa478834f5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.10.3 // indirect
+	github.com/sashabaranov/go-openai v1.30.3 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 )

@@ -19,37 +19,42 @@ type AssemblyAISTT struct {
 	sampleRate     int
 	lastSpeechTime time.Time
 	mu             sync.Mutex
+	OnTranscript   func(string)
 }
 
-func NewAssemblyAISTT() (*AssemblyAISTT, error) {
+func NewAssemblyAISTT(onTranscript ...func(string)) (*AssemblyAISTT, error) {
 	sampleRate := 16000
 
+	var transcriptFunc func(string)
+	if len(onTranscript) > 0 {
+		transcriptFunc = onTranscript[0]
+	}
+
 	stt := &AssemblyAISTT{
-		sampleRate: sampleRate,
+		sampleRate:   sampleRate,
+		OnTranscript: transcriptFunc,
 	}
 
 	transcriber := &assemblyai.RealTimeTranscriber{
-		OnSessionBegins: func(event assemblyai.SessionBegins) {
-			slog.Info("session begins")
-		},
-		OnSessionTerminated: func(event assemblyai.SessionTerminated) {
-			slog.Info("session terminated")
-		},
+		OnSessionBegins: func(event assemblyai.SessionBegins) { },
+		OnSessionTerminated: func(event assemblyai.SessionTerminated) { },
 		OnFinalTranscript: func(transcript assemblyai.FinalTranscript) {
 			fmt.Println(transcript.Text)
 			stt.updateLastSpeechTime()
+			if stt.OnTranscript != nil {
+				stt.OnTranscript(transcript.Text)
+			}
 		},
 		OnPartialTranscript: func(transcript assemblyai.PartialTranscript) {
 			fmt.Printf("%s\r", transcript.Text)
 			stt.updateLastSpeechTime()
 		},
 		OnError: func(err error) {
-			slog.Error("Something bad happened", "err", err)
+			slog.Error("System failure:", "error", err.Error())
 		},
 	}
 
 	apiKey := os.Getenv("ASSEMBLYAI_API_KEY")
-	
 	if apiKey == "" {
 		return nil, fmt.Errorf("ASSEMBLYAI_API_KEY is not set")
 	}
